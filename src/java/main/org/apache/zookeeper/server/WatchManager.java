@@ -39,7 +39,7 @@ public class WatchManager {
     private static final Logger LOG = LoggerFactory.getLogger(WatchManager.class);
 
     private final HashMap<String, HashSet<Watcher>> watchTable =
-        new HashMap<String, HashSet<Watcher>>();
+        new HashMap<String, HashSet<Watcher>>();// Watcher 可以理解成一个session
 
     private final HashMap<Watcher, HashSet<String>> watch2Paths =
         new HashMap<Watcher, HashSet<String>>();
@@ -117,7 +117,7 @@ public class WatchManager {
             if (supress != null && supress.contains(w)) {
                 continue;
             }
-            w.process(e);
+            w.process(e);//发送数据
         }
         return watchers;
     }

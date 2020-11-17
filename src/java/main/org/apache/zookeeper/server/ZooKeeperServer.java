@@ -125,7 +125,7 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
     static final private long superSecret = 0XB3415C00L;
 
     private final AtomicInteger requestsInProcess = new AtomicInteger(0);
-    final List<ChangeRecord> outstandingChanges = new ArrayList<ChangeRecord>();
+    final List<ChangeRecord> outstandingChanges = new ArrayList<ChangeRecord>();//修改记录队列
     // this data structure must be accessed under the outstandingChanges lock
     final HashMap<String, ChangeRecord> outstandingChangesForPath =
         new HashMap<String, ChangeRecord>();
@@ -412,7 +412,7 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
         if (sessionTracker == null) {
             createSessionTracker();
         }
-        startSessionTracker();
+        startSessionTracker();//启动session监听器
         setupRequestProcessors();
 
         registerJMX();
@@ -421,7 +421,7 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
         notifyAll();
     }
 
-    protected void setupRequestProcessors() {
+    protected void setupRequestProcessors() { //链表的RequestProcessor
         RequestProcessor finalProcessor = new FinalRequestProcessor(this);
         RequestProcessor syncProcessor = new SyncRequestProcessor(this,
                 finalProcessor);
@@ -748,7 +748,7 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
             touch(si.cnxn);
             boolean validpacket = Request.isValid(si.type);
             if (validpacket) {
-                firstProcessor.processRequest(si);
+                firstProcessor.processRequest(si);//调用第一个处理器 加入队列
                 if (si.cnxn != null) {
                     incInProcess();
                 }
@@ -948,7 +948,7 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
         } else {
             LOG.info("Client attempting to establish new session at "
                     + cnxn.getRemoteSocketAddress());
-            createSession(cnxn, passwd, sessionTimeout);
+            createSession(cnxn, passwd, sessionTimeout);//服务端的watch 来自 cnxn
         }
     }
 
@@ -1073,7 +1073,7 @@ public class ZooKeeperServer implements SessionExpirer, ServerStats.Provider {
         ProcessTxnResult rc;
         int opCode = hdr.getType();
         long sessionId = hdr.getClientId();
-        rc = getZKDatabase().processTxn(hdr, txn);
+        rc = getZKDatabase().processTxn(hdr, txn);//处理事务
         if (opCode == OpCode.createSession) {
             if (txn instanceof CreateSessionTxn) {
                 CreateSessionTxn cst = (CreateSessionTxn) txn;

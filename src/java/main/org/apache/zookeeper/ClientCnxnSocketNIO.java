@@ -64,7 +64,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
         if (sock == null) {
             throw new IOException("Socket is null!");
         }
-        if (sockKey.isReadable()) {
+        if (sockKey.isReadable()) { //读就绪
             int rc = sock.read(incomingBuffer);
             if (rc < 0) {
                 throw new EndOfStreamException(
@@ -77,7 +77,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                 if (incomingBuffer == lenBuffer) {
                     recvCount++;
                     readLength();
-                } else if (!initialized) {
+                } else if (!initialized) { //连接有没有初始化
                     readConnectResult();
                     enableRead();
                     if (findSendablePacket(outgoingQueue,
@@ -91,14 +91,14 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                     updateLastHeard();
                     initialized = true;
                 } else {
-                    sendThread.readResponse(incomingBuffer);
+                    sendThread.readResponse(incomingBuffer);//读数据
                     lenBuffer.clear();
                     incomingBuffer = lenBuffer;
                     updateLastHeard();
                 }
             }
         }
-        if (sockKey.isWritable()) {
+        if (sockKey.isWritable()) { //写就绪
             synchronized(outgoingQueue) {
                 Packet p = findSendablePacket(outgoingQueue,
                         cnxn.sendThread.clientTunneledAuthenticationInProgress());
@@ -114,7 +114,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                         }
                         p.createBB();
                     }
-                    sock.write(p.bb);
+                    sock.write(p.bb);//数据写入buffer
                     if (!p.bb.hasRemaining()) {
                         sentCount++;
                         outgoingQueue.removeFirstOccurrence(p);
@@ -122,7 +122,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
                                 && p.requestHeader.getType() != OpCode.ping
                                 && p.requestHeader.getType() != OpCode.auth) {
                             synchronized (pendingQueue) {
-                                pendingQueue.add(p);
+                                pendingQueue.add(p);//等待服务器返回结果的队列
                             }
                         }
                     }
@@ -282,7 +282,7 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
     
     @Override
     void connect(InetSocketAddress addr) throws IOException {
-        SocketChannel sock = createSock();
+        SocketChannel sock = createSock();//建立socket
         try {
            registerAndConnect(sock, addr);
         } catch (IOException e) {
@@ -360,9 +360,9 @@ public class ClientCnxnSocketNIO extends ClientCnxnSocket {
             if ((k.readyOps() & SelectionKey.OP_CONNECT) != 0) {
                 if (sc.finishConnect()) {
                     updateLastSendAndHeard();
-                    sendThread.primeConnection();
+                    sendThread.primeConnection();//当时没有连接成功，后来连接成功 异步
                 }
-            } else if ((k.readyOps() & (SelectionKey.OP_READ | SelectionKey.OP_WRITE)) != 0) {
+            } else if ((k.readyOps() & (SelectionKey.OP_READ | SelectionKey.OP_WRITE)) != 0) {//可读可写数据了
                 doIO(pendingQueue, outgoingQueue, cnxn);
             }
         }

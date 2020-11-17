@@ -79,7 +79,7 @@ public class ZooKeeperServerMain {
             LOG.warn("Unable to register log4j JMX control", e);
         }
 
-        ServerConfig config = new ServerConfig();
+        ServerConfig config = new ServerConfig();//配置
         if (args.length == 1) {
             config.parse(args[0]);
         } else {
@@ -116,7 +116,9 @@ public class ZooKeeperServerMain {
             zkServer.setTickTime(config.tickTime);
             zkServer.setMinSessionTimeout(config.minSessionTimeout);
             zkServer.setMaxSessionTimeout(config.maxSessionTimeout);
+            //获取建立socket工厂 工厂方法模式
             cnxnFactory = ServerCnxnFactory.createFactory();
+            //建立连接 NIOServerCnxnFactory是一个线程
             cnxnFactory.configure(config.getClientPortAddress(),
                     config.getMaxClientCnxns());
             cnxnFactory.startup(zkServer);

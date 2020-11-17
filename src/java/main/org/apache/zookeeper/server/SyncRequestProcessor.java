@@ -128,7 +128,7 @@ public class SyncRequestProcessor extends ZooKeeperCriticalThread implements Req
                 } else {
                     si = queuedRequests.poll();
                     if (si == null) {
-                        flush(toFlush);
+                        flush(toFlush);//客户端修改数据调用
                         continue;
                     }
                 }
@@ -150,7 +150,7 @@ public class SyncRequestProcessor extends ZooKeeperCriticalThread implements Req
                                 snapInProcess = new ZooKeeperThread("Snapshot Thread") {
                                         public void run() {
                                             try {
-                                                zks.takeSnapshot();
+                                                zks.takeSnapshot();//打快照
                                             } catch(Exception e) {
                                                 LOG.warn("Unexpected exception", e);
                                             }
@@ -196,7 +196,7 @@ public class SyncRequestProcessor extends ZooKeeperCriticalThread implements Req
         while (!toFlush.isEmpty()) {
             Request i = toFlush.remove();
             if (nextProcessor != null) {
-                nextProcessor.processRequest(i);
+                nextProcessor.processRequest(i);//调用FinalRequestProcessor
             }
         }
         if (nextProcessor != null && nextProcessor instanceof Flushable) {

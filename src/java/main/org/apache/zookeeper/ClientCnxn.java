@@ -478,7 +478,7 @@ public class ClientCnxn {
                             event.getPath()),
                             event);
             // queue the pair (watch set & event) for later processing
-            waitingEvents.add(pair);
+            waitingEvents.add(pair);//waitingEvents队列
         }
 
        public void queuePacket(Packet packet) {
@@ -525,12 +525,12 @@ public class ClientCnxn {
 
        private void processEvent(Object event) {
           try {
-              if (event instanceof WatcherSetEventPair) {
+              if (event instanceof WatcherSetEventPair) {//监听器的
                   // each watcher will process the event
                   WatcherSetEventPair pair = (WatcherSetEventPair) event;
                   for (Watcher watcher : pair.watchers) {
                       try {
-                          watcher.process(pair.event);
+                          watcher.process(pair.event);//自己实现的
                       } catch (Throwable t) {
                           LOG.error("Error while calling watcher ", t);
                       }
@@ -651,7 +651,7 @@ public class ClientCnxn {
         if (p.cb == null) {
             synchronized (p) {
                 p.finished = true;
-                p.notifyAll();
+                p.notifyAll();//唤醒
             }
         } else {
             p.finished = true;
@@ -763,7 +763,7 @@ public class ClientCnxn {
                 }
                 return;
             }
-            if (replyHdr.getXid() == -1) {
+            if (replyHdr.getXid() == -1) { //watch 监听
                 // -1 means notification
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Got notification sessionid:0x"
@@ -792,7 +792,7 @@ public class ClientCnxn {
                             + Long.toHexString(sessionId));
                 }
 
-                eventThread.queueEvent( we );
+                eventThread.queueEvent( we );//watchedEvent 放入队列里
                 return;
             }
 
@@ -838,6 +838,7 @@ public class ClientCnxn {
                 if (replyHdr.getZxid() > 0) {
                     lastZxid = replyHdr.getZxid();
                 }
+                //packet 包含相应结果
                 if (packet.response != null && replyHdr.getErr() == 0) {
                     packet.response.deserialize(bbia, "response");
                 }
@@ -1043,7 +1044,7 @@ public class ClientCnxn {
             InetSocketAddress serverAddress = null;
             while (state.isAlive()) {
                 try {
-                    if (!clientCnxnSocket.isConnected()) {
+                    if (!clientCnxnSocket.isConnected()) { //如果socket还没有连接 去连接
                         if(!isFirstConnect){
                             try {
                                 Thread.sleep(r.nextInt(1000));
@@ -1112,14 +1113,14 @@ public class ClientCnxn {
                         LOG.warn(warnInfo);
                         throw new SessionTimeoutException(warnInfo);
                     }
-                    if (state.isConnected()) {
+                    if (state.isConnected()) {//连接成功
                     	//1000(1 second) is to prevent race condition missing to send the second ping
                     	//also make sure not to send too many pings when readTimeout is small 
                         int timeToNextPing = readTimeout / 2 - clientCnxnSocket.getIdleSend() - 
                         		((clientCnxnSocket.getIdleSend() > 1000) ? 1000 : 0);
                         //send a ping request either time is due or no packet sent out within MAX_SEND_PING_INTERVAL
                         if (timeToNextPing <= 0 || clientCnxnSocket.getIdleSend() > MAX_SEND_PING_INTERVAL) {
-                            sendPing();
+                            sendPing();//发送ping
                             clientCnxnSocket.updateLastSend();
                         } else {
                             if (timeToNextPing < to) {
@@ -1141,7 +1142,7 @@ public class ClientCnxn {
                         }
                         to = Math.min(to, pingRwTimeout - idlePingRwServer);
                     }
-
+                    //读写数据
                     clientCnxnSocket.doTransport(to, pendingQueue, outgoingQueue, ClientCnxn.this);
                 } catch (Throwable e) {
                     if (closing) {
@@ -1399,7 +1400,7 @@ public class ClientCnxn {
     synchronized public int getXid() {
         return xid++;
     }
-
+    //提交请求
     public ReplyHeader submitRequest(RequestHeader h, Record request,
             Record response, WatchRegistration watchRegistration)
             throws InterruptedException {

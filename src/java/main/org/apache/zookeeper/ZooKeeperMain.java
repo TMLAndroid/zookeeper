@@ -311,6 +311,7 @@ public class ZooKeeperMain {
             boolean jlinemissing = false;
             // only use jline if it's in the classpath
             try {
+                //命令行实现类
                 Class<?> consoleC = Class.forName("jline.ConsoleReader");
                 Class<?> completorC =
                     Class.forName("org.apache.zookeeper.JLineZNodeCompletor");
@@ -329,7 +330,7 @@ public class ZooKeeperMain {
                 String line;
                 Method readLine = consoleC.getMethod("readLine", String.class);
                 while ((line = (String)readLine.invoke(console, getPrompt())) != null) {
-                    executeLine(line);
+                    executeLine(line);//执行命令行
                 }
             } catch (ClassNotFoundException e) {
                 LOG.debug("Unable to start jline", e);
@@ -686,7 +687,7 @@ public class ZooKeeperMain {
             return false;
         }
         
-        if (cmd.equals("create") && args.length >= 3) {
+        if (cmd.equals("create") && args.length >= 3) {//创建一个节点
             int first = 0;
             CreateMode flags = CreateMode.PERSISTENT;
             if ((args[1].equals("-e") && args[2].equals("-s"))

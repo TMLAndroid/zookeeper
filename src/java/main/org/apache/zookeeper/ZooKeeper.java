@@ -194,7 +194,7 @@ public class ZooKeeper {
             case NodeDataChanged:
             case NodeCreated:
                 synchronized (dataWatches) {
-                    addTo(dataWatches.remove(clientPath), result);
+                    addTo(dataWatches.remove(clientPath), result);//remove 取出监听器
                 }
                 synchronized (existWatches) {
                     addTo(existWatches.remove(clientPath), result);
@@ -443,7 +443,7 @@ public class ZooKeeper {
                 + " sessionTimeout=" + sessionTimeout + " watcher=" + watcher);
 
         watchManager.defaultWatcher = watcher;
-
+        //包装地址
         ConnectStringParser connectStringParser = new ConnectStringParser(
                 connectString);
         HostProvider hostProvider = new StaticHostProvider(
@@ -772,7 +772,7 @@ public class ZooKeeper {
         throws KeeperException, InterruptedException
     {
         final String clientPath = path;
-        PathUtils.validatePath(clientPath, createMode.isSequential());
+        PathUtils.validatePath(clientPath, createMode.isSequential());//校验路径合法性
 
         final String serverPath = prependChroot(clientPath);
 
@@ -1792,7 +1792,7 @@ public class ZooKeeper {
 
     /**
      * Wait up to wait milliseconds for the underlying threads to shutdown.
-     * THIS METHOD IS EXPECTED TO BE USED FOR TESTING ONLY!!!
+     * THIS METHOD IS EXP ECTED TO BE USED FOR TESTING ONLY!!!
      * 
      * @since 3.3.0
      * 
@@ -1841,6 +1841,7 @@ public class ZooKeeper {
     private static ClientCnxnSocket getClientCnxnSocket() throws IOException {
         String clientCnxnSocketName = System
                 .getProperty(ZOOKEEPER_CLIENT_CNXN_SOCKET);
+        //创建一个nio socket
         if (clientCnxnSocketName == null) {
             clientCnxnSocketName = ClientCnxnSocketNIO.class.getName();
         }

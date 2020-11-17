@@ -82,7 +82,7 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory implements Runnable 
         configureSaslLogin();
 
         thread = new ZooKeeperThread(this, "NIOServerCxn.Factory:" + addr);
-        thread.setDaemon(true);
+        thread.setDaemon(true);//守护线程 gc 可以关了
         maxClientCnxns = maxcc;
         this.ss = ServerSocketChannel.open();
         ss.socket().setReuseAddress(true);
@@ -113,9 +113,9 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory implements Runnable 
     @Override
     public void startup(ZooKeeperServer zks) throws IOException,
             InterruptedException {
-        start();
+        start();//执行run方法
         setZooKeeperServer(zks);
-        zks.startdata();
+        zks.startdata();//日志 反序列到数据库~
         zks.startup();
     }
 
@@ -217,13 +217,13 @@ public class NIOServerCnxnFactory extends ServerCnxnFactory implements Runnable 
                             sc.configureBlocking(false);
                             SelectionKey sk = sc.register(selector,
                                     SelectionKey.OP_READ);
-                            NIOServerCnxn cnxn = createConnection(sc, sk);
+                            NIOServerCnxn cnxn = createConnection(sc, sk);//建立连接
                             sk.attach(cnxn);
                             addCnxn(cnxn);
                         }
-                    } else if ((k.readyOps() & (SelectionKey.OP_READ | SelectionKey.OP_WRITE)) != 0) {
+                    } else if ((k.readyOps() & (SelectionKey.OP_READ | SelectionKey.OP_WRITE)) != 0) {//读写数据
                         NIOServerCnxn c = (NIOServerCnxn) k.attachment();
-                        c.doIO(k);
+                        c.doIO(k);//读写数据
                     } else {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("Unexpected ops in select "

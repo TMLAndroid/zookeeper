@@ -139,7 +139,7 @@ public class SessionTrackerImpl extends ZooKeeperCriticalThread implements Sessi
     }
 
     @Override
-    synchronized public void run() {
+    synchronized public void run() {//session 过期
         try {
             while (running) {
                 currentTime = Time.currentElapsedTime();

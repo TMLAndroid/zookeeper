@@ -531,7 +531,7 @@ public class DataTree {
           this.updateBytes(lastPrefix, (data == null ? 0 : data.length)
               - (lastdata == null ? 0 : lastdata.length));
         }
-        dataWatches.triggerWatch(path, EventType.NodeDataChanged);
+        dataWatches.triggerWatch(path, EventType.NodeDataChanged);//触发事件
         return s;
     }
 
@@ -725,7 +725,7 @@ public class DataTree {
                     rc.path = deleteTxn.getPath();
                     deleteNode(deleteTxn.getPath(), header.getZxid());
                     break;
-                case OpCode.setData:
+                case OpCode.setData://设置数据
                     SetDataTxn setDataTxn = (SetDataTxn) txn;
                     rc.path = setDataTxn.getPath();
                     rc.stat = setData(setDataTxn.getPath(), setDataTxn
@@ -738,7 +738,7 @@ public class DataTree {
                     rc.stat = setACL(setACLTxn.getPath(), setACLTxn.getAcl(),
                             setACLTxn.getVersion());
                     break;
-                case OpCode.closeSession:
+                case OpCode.closeSession://quit 删除临时节点
                     killSession(header.getClientId(), header.getZxid());
                     break;
                 case OpCode.error:

@@ -270,6 +270,9 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
         }
     }
 
+    //acl 是节点以及存在权限的规则
+    // perm当前这个操作需要的权限
+    // ids  当前登录的用户名密码/ip
     static void checkACL(ZooKeeperServer zks, List<ACL> acl, int perm,
             List<Id> ids) throws KeeperException.NoAuthException {
         if (skipACL) {
@@ -339,7 +342,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
                     throw new KeeperException.InvalidACLException(path);
                 }
                 String parentPath = path.substring(0, lastSlash);
-                ChangeRecord parentRecord = getRecordForPath(parentPath);
+                ChangeRecord parentRecord = getRecordForPath(parentPath);//取出父节点修改记录
 
                 checkACL(zks, parentRecord.acl, ZooDefs.Perms.CREATE,
                         request.authInfo);
@@ -357,7 +360,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
                 } catch (KeeperException.NoNodeException e) {
                     // ignore this one
                 }
-                boolean ephemeralParent = parentRecord.stat.getEphemeralOwner() != 0;
+                boolean ephemeralParent = parentRecord.stat.getEphemeralOwner() != 0;//父节点是一个临时节点
                 if (ephemeralParent) {
                     throw new KeeperException.NoChildrenForEphemeralsException(path);
                 }
@@ -678,7 +681,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
             }
         }
         request.zxid = zks.getZxid();
-        nextProcessor.processRequest(request);
+        nextProcessor.processRequest(request);//调用下一个处理器 SyncRequestProcessor 持久化的逻辑
     }
 
     private List<ACL> removeDuplicates(List<ACL> acl) {
@@ -762,7 +765,7 @@ public class PrepRequestProcessor extends ZooKeeperCriticalThread implements
 
     public void processRequest(Request request) {
         // request.addRQRec(">prep="+zks.outstandingChanges.size());
-        submittedRequests.add(request);
+        submittedRequests.add(request);//加入队列
     }
 
     public void shutdown() {

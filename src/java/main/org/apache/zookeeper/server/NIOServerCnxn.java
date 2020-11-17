@@ -208,7 +208,7 @@ public class NIOServerCnxn extends ServerCnxn {
             if (!initialized) {
                 readConnectRequest();
             } else {
-                readRequest();
+                readRequest();//读数据
             }
             lenBuffer.clear();
             incomingBuffer = lenBuffer;
@@ -261,7 +261,7 @@ public class NIOServerCnxn extends ServerCnxn {
                         isPayload = true;
                     }
                     if (isPayload) { // not the case for 4letterword
-                        readPayload();
+                        readPayload();//读数据
                     }
                     else {
                         // four letter words take care
@@ -1163,7 +1163,7 @@ public class NIOServerCnxn extends ServerCnxn {
 
         // Convert WatchedEvent to a type that can be sent over the wire
         WatcherEvent e = event.getWrapper();
-
+        //最终的发送数据
         sendResponse(h, e, "notification");
     }
 
